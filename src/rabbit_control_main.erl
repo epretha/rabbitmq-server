@@ -598,8 +598,15 @@ action(list_queues, Node, Args, Opts, Inform, Timeout) ->
     Inform("Listing queues", []),
     VHostArg = list_to_binary(proplists:get_value(?VHOST_OPT, Opts)),
     ArgAtoms = default_if_empty(Args, [name, messages]),
-    call(Node, {rabbit_amqqueue, info_all, [VHostArg, ArgAtoms]},
-         ArgAtoms, Timeout);
+    case lists:member(down, ArgAtoms) of
+        true ->
+            NewArgAtoms = lists:usort((ArgAtoms -- [down]) ++ [name]),
+            call(Node, {rabbit_amqqueue, get_info_about_down_queues,
+                        [VHostArg, NewArgAtoms]}, NewArgAtoms, Timeout);
+        false ->
+            call(Node, {rabbit_amqqueue, info_all, [VHostArg, ArgAtoms]},
+                 ArgAtoms, Timeout)
+    end;
 
 action(list_exchanges, Node, Args, Opts, Inform, Timeout) ->
     Inform("Listing exchanges", []),
