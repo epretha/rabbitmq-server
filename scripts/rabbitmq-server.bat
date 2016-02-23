@@ -15,6 +15,7 @@ REM  The Initial Developer of the Original Code is GoPivotal, Inc.
 REM  Copyright (c) 2007-2015 Pivotal Software, Inc.  All rights reserved.
 REM
 
+
 setlocal
 
 rem Preserve values that might contain exclamation marks before
@@ -27,6 +28,23 @@ REM Get default settings with user overrides for (RABBITMQ_)<var_name>
 REM Non-empty defaults should be set in rabbitmq-env
 call "%TDP0%\rabbitmq-env.bat" %~n0
 
+echo %0
+echo (%*)
+echo !ERLANG_HOME!
+
+if (%*)==(-detached) (
+    echo "detached mode"
+    SET DETACHED_FLAG=" -detached"
+    rem SET ERLANG_EXECUTABLE="!ERLANG_HOME!\bin\werl.exe" )
+) else (
+    echo "not detached"
+    SET DETACHED_FLAG=""
+    rem SET ERLANG_EXECUTABLE="!ERLANG_HOME!\bin\erl.exe"
+)
+rem echo !ERLANG_EXECUTABLE!
+echo !DETACHED_FLAG!
+
+rem if not exist !ERLANG_EXECUTABLE! (
 if not exist "!ERLANG_HOME!\bin\erl.exe" (
     echo.
     echo ******************************
@@ -41,6 +59,10 @@ if not exist "!ERLANG_HOME!\bin\erl.exe" (
 
 set RABBITMQ_EBIN_ROOT=!RABBITMQ_HOME!\ebin
 
+echo "Trial run"
+rem !ERLANG_EXECUTABLE! ^
+
+rem goto skipthis
 "!ERLANG_HOME!\bin\erl.exe" ^
         -pa "!RABBITMQ_EBIN_ROOT!" ^
         -noinput -hidden ^
@@ -48,11 +70,15 @@ set RABBITMQ_EBIN_ROOT=!RABBITMQ_HOME!\ebin
         !RABBITMQ_NAME_TYPE! rabbitmqprelaunch!RANDOM!!TIME:~9! ^
         -extra "!RABBITMQ_NODENAME!"
 
+
 if ERRORLEVEL 2 (
+    echo "Found Error_2. Exiting..."
     rem dist port mentioned in config, do not attempt to set it
 ) else if ERRORLEVEL 1 (
+    echo "Found Error_1. Exiting..."
     exit /B 1
 ) else (
+    echo "Setting environment"
     set RABBITMQ_DIST_ARG=-kernel inet_dist_listen_min !RABBITMQ_DIST_PORT! -kernel inet_dist_listen_max !RABBITMQ_DIST_PORT!
 )
 
@@ -94,6 +120,8 @@ if "!RABBITMQ_IO_THREAD_POOL_SIZE!"=="" (
     set RABBITMQ_IO_THREAD_POOL_ARG=30
 )
 
+echo "Starting Rabbit node...."
+
 "!ERLANG_HOME!\bin\erl.exe" ^
 -pa "!RABBITMQ_EBIN_ROOT!" ^
 -boot start_sasl ^
@@ -120,7 +148,8 @@ if "!RABBITMQ_IO_THREAD_POOL_SIZE!"=="" (
 -mnesia dir \""!RABBITMQ_MNESIA_DIR:\=/!"\" ^
 !RABBITMQ_SERVER_START_ARGS! ^
 !RABBITMQ_DIST_ARG! ^
-!STAR!
+!STAR! ^
+!DETACHED_FLAG!
 
 endlocal
 endlocal
