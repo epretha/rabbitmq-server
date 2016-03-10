@@ -73,7 +73,7 @@
          {clear_policy, [?VHOST_DEF]},
          {list_policies, [?VHOST_DEF]},
 
-         {list_queues, [?VHOST_DEF]},
+         {list_queues, [?VHOST_DEF, ?UP_DEF, ?DOWN_DEF]},
          {list_exchanges, [?VHOST_DEF]},
          {list_bindings, [?VHOST_DEF]},
          {list_connections, [?VHOST_DEF]},
@@ -615,9 +615,23 @@ action(list_user_permissions, Node, Args = [_Username], _Opts, Inform, Timeout) 
 action(list_queues, Node, Args, Opts, Inform, Timeout) ->
     Inform("Listing queues", []),
     VHostArg = list_to_binary(proplists:get_value(?VHOST_OPT, Opts)),
+    UpOption = proplists:get_bool(?UP_OPT, Opts),
+    DownOption = proplists:get_bool(?DOWN_OPT, Opts),
     ArgAtoms = default_if_empty(Args, [name, messages]),
-    call(Node, {rabbit_amqqueue, info_all, [VHostArg, ArgAtoms]},
-         ArgAtoms, Timeout);
+    case {UpOption, DownOption} of
+        {true, false} ->
+            call(Node, {rabbit_amqqueue, info_up_queues,
+                        [VHostArg, ArgAtoms]}, ArgAtoms, Timeout);
+        {false, true} ->
+            call(Node, {rabbit_amqqueue, info_down_queues,
+                        [VHostArg, ArgAtoms]}, ArgAtoms, Timeout);
+        {false, false} ->
+            call(Node, {rabbit_amqqueue, info_all,
+                        [VHostArg, ArgAtoms]}, ArgAtoms, Timeout);
+        {true, true} ->
+            call(Node, {rabbit_amqqueue, info_all,
+                        [VHostArg, ArgAtoms]}, ArgAtoms, Timeout)
+    end;
 
 action(list_exchanges, Node, Args, Opts, Inform, Timeout) ->
     Inform("Listing exchanges", []),

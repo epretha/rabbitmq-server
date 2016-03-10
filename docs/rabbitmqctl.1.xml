@@ -1210,7 +1210,7 @@
 
       <variablelist>
         <varlistentry role="usage-has-option-list">
-          <term><cmdsynopsis><command>list_queues</command> <arg choice="opt">-p <replaceable>vhost</replaceable></arg> <arg choice="opt" role="usage-option-list"><replaceable>queueinfoitem</replaceable> ...</arg></cmdsynopsis></term>
+          <term><cmdsynopsis><command>list_queues</command> <arg choice="opt">-p <replaceable>vhost</replaceable></arg> <arg choice="opt">--up <replaceable></replaceable></arg> <arg choice="opt">--down <replaceable></replaceable></arg> <arg choice="opt" role="usage-option-list"><replaceable>queueinfoitem</replaceable> ...</arg></cmdsynopsis></term>
           <listitem>
             <para>
               Returns queue details. Queue details of the <command>/</command> virtual host

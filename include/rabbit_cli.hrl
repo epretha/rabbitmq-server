@@ -30,6 +30,9 @@
 -define(OFFLINE_OPT, "--offline").
 -define(ONLINE_OPT, "--online").
 
+-define(UP_OPT, "--up").
+-define(DOWN_OPT, "--down").
+
 
 -define(NODE_DEF(Node), {?NODE_OPT, {option, Node}}).
 -define(QUIET_DEF, {?QUIET_OPT, flag}).
@@ -46,6 +49,9 @@
 -define(RAM_DEF, {?RAM_OPT, flag}).
 -define(OFFLINE_DEF, {?OFFLINE_OPT, flag}).
 -define(ONLINE_DEF, {?ONLINE_OPT, flag}).
+
+-define(UP_DEF, {?UP_OPT, flag}).
+-define(DOWN_DEF, {?DOWN_OPT, flag}).
 
 %% Subset of standartized exit codes from sysexits.h, see
 %% https://github.com/rabbitmq/rabbitmq-server/issues/396 for discussion.
